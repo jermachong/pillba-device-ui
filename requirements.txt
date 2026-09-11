@@ -1,5 +1,8 @@
 PyQt5>=5.15
 Pillow>=10.0
+numpy>=1.24
 pyserial>=3.5
 pyqtgraph>=0.13
 opencv-python>=4.8
+spidev>=3.6
+RPi.GPIO>=0.7

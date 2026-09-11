@@ -1,25 +1,13 @@
 from __future__ import annotations
 
-import os
-import sys
-from pathlib import Path
-
 from PIL import Image
 from PyQt5.QtGui import QImage
+
+import ST7796
 
 
 class ST7796Display:
     def __init__(self) -> None:
-        driver_path = os.environ.get("PILLBA_ST7796_PATH")
-        if driver_path:
-            sys.path.insert(0, driver_path)
-        else:
-            sibling_driver = Path(__file__).parent.parent / "st7796-python" / "python"
-            if sibling_driver.is_dir():
-                sys.path.insert(0, str(sibling_driver))
-
-        import ST7796
-
         self._display = ST7796.ST7796(
             height=480,
             width=320,
@@ -32,7 +20,6 @@ class ST7796Display:
             offset_left=0,
             offset_top=0,
         )
-        self._display.begin()
 
     def show(self, image: Image.Image) -> None:
         frame = image.convert("RGB")
