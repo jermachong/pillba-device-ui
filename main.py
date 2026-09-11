@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget
 
@@ -14,6 +14,7 @@ from pages.log import LogWidget
 from pages.schedule import ScheduleWidget
 from pages.settings import SettingsWidget
 from serial_worker import SerialWorker
+from lcd_display import ST7796Display, qimage_to_pil
 
 
 class MainWindow(QMainWindow):
@@ -77,9 +78,29 @@ class MainWindow(QMainWindow):
 
 
 def main() -> int:
+    lcd_enabled = os.environ.get("PILLBA_LCD") == "1"
+    if lcd_enabled:
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+
     app = QApplication(sys.argv)
     window = MainWindow()
+
+    if not lcd_enabled:
+        window.showFullScreen()
+        return app.exec_()
+
     window.show()
+    lcd = ST7796Display()
+
+    def refresh_lcd() -> None:
+        app.processEvents()
+        lcd.show(qimage_to_pil(window.grab().toImage()))
+
+    refresh_timer = QTimer(window)
+    refresh_timer.timeout.connect(refresh_lcd)
+    refresh_timer.start(200)
+    refresh_lcd()
+
     return app.exec_()
 
 
